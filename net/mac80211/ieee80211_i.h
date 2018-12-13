@@ -713,6 +713,10 @@ struct ieee80211_if_mesh {
 	struct mesh_table *mpp_paths; /* Store paths for MPP&MAP */
 	int mesh_paths_generation;
 	int mpp_paths_generation;
+
+	/* Store Vendor specific IE */
+	u8 vendor_ie[260];
+	u8 vendor_ie_len;
 };
 
 #ifdef CPTCFG_MAC80211_MESH

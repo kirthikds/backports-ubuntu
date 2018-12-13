@@ -334,15 +334,15 @@ int mesh_add_vendor_ies(struct ieee80211_sub_if_data *sdata,
 	u8 offset, len;
 	const u8 *data;
 
-	if (!ifmsh->ie || !ifmsh->ie_len)
+	if (!ifmsh->vendor_ie_len)
 		return 0;
 
 	/* fast-forward to vendor IEs */
-	offset = ieee80211_ie_split_vendor(ifmsh->ie, ifmsh->ie_len, 0);
+	offset = ieee80211_ie_split_vendor(ifmsh->vendor_ie, ifmsh->vendor_ie_len, 0);
 
-	if (offset < ifmsh->ie_len) {
-		len = ifmsh->ie_len - offset;
-		data = ifmsh->ie + offset;
+	if (offset < ifmsh->vendor_ie_len) {
+		len = ifmsh->vendor_ie_len - offset;
+		data = ifmsh->vendor_ie + offset;
 		if (skb_tailroom(skb) < len)
 			return -ENOMEM;
 		skb_put_data(skb, data, len);
