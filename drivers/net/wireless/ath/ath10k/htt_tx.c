@@ -1084,6 +1084,8 @@ int ath10k_htt_tx(struct ath10k_htt *htt, enum ath10k_hw_txrx_mode txmode,
 	if (res)
 		goto err_unmap_msdu;
 
+	skb_orphan(msdu);
+
 	return 0;
 
 err_unmap_msdu:
