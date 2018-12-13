@@ -1491,6 +1491,13 @@ struct ieee802_11_elems {
 	bool parse_error;
 };
 
+struct ieee802_11_mesh_vendor_specific_elems {
+	const u8 *ie_start;
+	u8 ie_len;
+	/* whether a parse error occurred while retrieving these elements */
+	bool parse_error;
+};
+
 static inline struct ieee80211_local *hw_to_local(
 	struct ieee80211_hw *hw)
 {
@@ -1915,6 +1922,9 @@ static inline void ieee80211_tx_skb(struct ieee80211_sub_if_data *sdata,
 
 u32 ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
 			       struct ieee802_11_elems *elems,
+			       u64 filter, u32 crc);
+u32 ieee802_11_parse_mesh_vendor_elems(const u8 *start, size_t len, bool action,
+			       struct ieee802_11_mesh_vendor_specific_elems *elems,
 			       u64 filter, u32 crc);
 static inline void ieee802_11_parse_elems(const u8 *start, size_t len,
 					  bool action,

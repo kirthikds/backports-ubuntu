@@ -1184,6 +1184,7 @@ enum nl80211_commands {
 
 	NL80211_CMD_SET_PMK,
 	NL80211_CMD_DEL_PMK,
+	NL80211_CMD_MESH_MGMT_FRAME,
 
 	/* add new commands above here */
 
@@ -2564,6 +2565,7 @@ enum nl80211_attrs {
 	NL80211_ATTR_WANT_1X_4WAY_HS,
 	NL80211_ATTR_PMKR0_NAME,
 	NL80211_ATTR_PORT_AUTHORIZED,
+	NL80211_ATTR_SIGNAL_STRENGTH,
 
 	/* add attributes here, update the policy in nl80211.c */
 

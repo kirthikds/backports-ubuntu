@@ -6188,6 +6188,25 @@ void cfg80211_nan_func_terminated(struct wireless_dev *wdev,
 
 /* ethtool helper */
 void cfg80211_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info);
+/**
+ * cfg80211_notify_mesh_mgmt_frames - notify cfg80211 of a new mesh management frame
+ *
+ * @dev: network device
+ * @macaddr: the MAC address of the new candidate
+ * @stype: Management frame sub type
+ * @signal: Frame received signal strength
+ * @beacon_int: Beacon interval advertised in received beacon frame
+ * @ie: vendor specific information elements advertised by the peer candidate
+ * @ie_len: lenght of the vendor specific information elements buffer
+ * @gfp: allocation flags
+ *
+ * This function notifies cfg80211 that the mesh peer management frame has been
+ * detected, most likely via a beacon or, less likely, via a probe response, probe request.
+ * cfg80211 then sends a notification to userspace.
+ */
+void cfg80211_notify_mesh_mgmt_frames(struct net_device *dev,
+				      const u8 *macaddr, u16 stype, s8 signal,
+				      u32 beacon_int, const u8 *ie, u8 ie_len, gfp_t gfp);
 
 /* Logging, debugging and troubleshooting/diagnostic helpers. */
 
