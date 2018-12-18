@@ -10,4 +10,6 @@ git clone git://codeaurora.org/quic/qsdk/kvalo/ath.git
 
 git checkout c09dbd7
 
-cd backports /gentree.py --verbose --clean --copy-list copy-list.ath ../ath ../backports-ubuntu
+cd backports 
+
+./gentree.py --verbose --clean --copy-list copy-list.ath ../ath ../backports-ubuntu
