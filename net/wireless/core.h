@@ -302,9 +302,6 @@ int cfg80211_join_mesh(struct cfg80211_registered_device *rdev,
 		       struct net_device *dev,
 		       struct mesh_setup *setup,
 		       const struct mesh_config *conf);
-int cfg80211_update_mesh_vendor_ie(struct cfg80211_registered_device *rdev,
-                                   struct net_device *dev,
-                                   struct mesh_vendor_ie *vendor_ie);
 int __cfg80211_leave_mesh(struct cfg80211_registered_device *rdev,
 			  struct net_device *dev);
 int cfg80211_leave_mesh(struct cfg80211_registered_device *rdev,

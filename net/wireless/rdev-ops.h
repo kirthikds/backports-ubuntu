@@ -337,14 +337,6 @@ static inline int rdev_join_mesh(struct cfg80211_registered_device *rdev,
 	return ret;
 }
 
-static inline int rdev_update_mesh_vendor_ie(struct cfg80211_registered_device *rdev,
-				 struct net_device *dev,
-				 struct mesh_vendor_ie *ie)
-{
-	int ret;
-	ret = rdev->ops->update_mesh_vendor_ie(&rdev->wiphy, dev, ie);
-	return ret;
-}
 
 static inline int rdev_leave_mesh(struct cfg80211_registered_device *rdev,
 				  struct net_device *dev)

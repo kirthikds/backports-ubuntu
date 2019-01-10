@@ -11762,22 +11762,6 @@ static int nl80211_vendor_cmd(struct sk_buff *skb, struct genl_info *info)
 		__cfg80211_wdev_from_attrs(genl_info_net(info), info->attrs);
 	int i, err;
 	u32 vid, subcmd;
-	struct net_device *dev = wdev->netdev;
-	struct mesh_vendor_ie mv_ie;
-
-
-	if (wdev->iftype == NL80211_IFTYPE_MESH_POINT) {
-		if (info->attrs[NL80211_MESH_SETUP_VENDOR_IE]) {
-			struct nlattr *ieattr =
-				info->attrs[NL80211_MESH_SETUP_VENDOR_IE];
-			if (!is_valid_ie_attr(ieattr))
-				return -EINVAL;
-			mv_ie.ie = nla_data(ieattr);
-			mv_ie.ie_len = nla_len(ieattr);
-			err = cfg80211_update_mesh_vendor_ie(rdev, dev, &mv_ie);
-			return err;
-		}
-	}
 
 	if (!rdev->wiphy.vendor_commands)
 		return -EOPNOTSUPP;

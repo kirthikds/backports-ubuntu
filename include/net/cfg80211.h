@@ -1471,17 +1471,6 @@ struct mesh_setup {
 };
 
 /**
- * struct mesh_setup - 802.11s mesh setup configuration
- * @ie: vendor information elements
- * @ie_len: length of vendor information elements
- * These parameters are updated peroidically after mesh creation.
- */
-struct mesh_vendor_ie {
-	const u8 *ie;
-	u8 ie_len;
-};
-
-/**
  * struct ocb_setup - 802.11p OCB mode setup configuration
  * @chandef: defines the channel to use
  *
@@ -2999,9 +2988,6 @@ struct cfg80211_ops {
 			     const struct mesh_config *conf,
 			     const struct mesh_setup *setup);
 	int	(*leave_mesh)(struct wiphy *wiphy, struct net_device *dev);
-	int	(*update_mesh_vendor_ie)(struct wiphy *wiphy,
-				      struct net_device *dev,
-				      const struct mesh_vendor_ie *vendor_ie);
 
 	int	(*join_ocb)(struct wiphy *wiphy, struct net_device *dev,
 			    struct ocb_setup *setup);
