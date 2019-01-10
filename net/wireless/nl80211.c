@@ -13963,52 +13963,6 @@ void cfg80211_notify_new_peer_candidate(struct net_device *dev, const u8 *addr,
 }
 EXPORT_SYMBOL(cfg80211_notify_new_peer_candidate);
 
-void cfg80211_notify_mesh_mgmt_frames(struct net_device *dev,
-                                      const u8 *macaddr, u16 stype, s8 signal,
-                                      u32 beacon_int, const u8 *ie, u8 ie_len, gfp_t gfp)
-{
-	struct wireless_dev *wdev = dev->ieee80211_ptr;
-	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
-	struct sk_buff *msg;
-	void *hdr;
-
-	if (WARN_ON(wdev->iftype != NL80211_IFTYPE_MESH_POINT))
-		return;
-
-
-	msg = nlmsg_new(100 + ie_len, gfp);
-	if (!msg)
-		return;
-
-	hdr = nl80211hdr_put(msg, 0, 0, 0, NL80211_CMD_MESH_MGMT_FRAME);
-	if (!hdr) {
-		nlmsg_free(msg);
-		return;
-	}
-
-	if (nla_put_u32(msg, NL80211_ATTR_WIPHY, rdev->wiphy_idx) ||
-	    nla_put_string(msg, NL80211_ATTR_IFNAME, dev->name) ||
-	    nla_put_u32(msg, NL80211_ATTR_IFINDEX, dev->ifindex) ||
-	    nla_put(msg, NL80211_ATTR_MAC, ETH_ALEN, macaddr) ||
-	    nla_put_u16(msg, NL80211_ATTR_FRAME_TYPE, stype) ||
-	    nla_put_s8(msg, NL80211_ATTR_SIGNAL_STRENGTH, signal) ||
-	    nla_put_u32(msg, NL80211_ATTR_BEACON_INTERVAL, beacon_int) ||
-	    (ie_len && ie &&
-	     nla_put(msg, NL80211_ATTR_IE, ie_len , ie)))
-		goto nla_put_failure;
-
-	genlmsg_end(msg, hdr);
-
-	genlmsg_multicast_netns(&nl80211_fam, wiphy_net(&rdev->wiphy), msg, 0,
-				NL80211_MCGRP_MLME, gfp);
-	return;
-
- nla_put_failure:
-	genlmsg_cancel(msg, hdr);
-	nlmsg_free(msg);
-}
-EXPORT_SYMBOL(cfg80211_notify_mesh_mgmt_frames);
-
 void nl80211_michael_mic_failure(struct cfg80211_registered_device *rdev,
 				 struct net_device *netdev, const u8 *addr,
 				 enum nl80211_key_type key_type, int key_id,
