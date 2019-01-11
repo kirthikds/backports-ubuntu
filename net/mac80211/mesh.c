@@ -334,18 +334,30 @@ int mesh_add_vendor_ies(struct ieee80211_sub_if_data *sdata,
 	u8 offset, len;
 	const u8 *data;
 
-	if (!ifmsh->ie || !ifmsh->ie_len)
-		return 0;
 
 	/* fast-forward to vendor IEs */
-	offset = ieee80211_ie_split_vendor(ifmsh->ie, ifmsh->ie_len, 0);
+	if (ifmsh->node_vendor_ie_len) {
+		offset = ieee80211_ie_split_vendor(ifmsh->node_vendor_ie, ifmsh->node_vendor_ie_len, 0);
 
-	if (offset < ifmsh->ie_len) {
-		len = ifmsh->ie_len - offset;
-		data = ifmsh->ie + offset;
-		if (skb_tailroom(skb) < len)
-			return -ENOMEM;
-		skb_put_data(skb, data, len);
+		if (offset < ifmsh->node_vendor_ie_len) {
+			len = ifmsh->node_vendor_ie_len - offset;
+			data = ifmsh->node_vendor_ie + offset;
+			if (skb_tailroom(skb) < len)
+				return -ENOMEM;
+			skb_put_data(skb, data, len);
+		}
+	}
+
+	if (ifmsh->mpm_vendor_ie_len) {
+		offset = ieee80211_ie_split_vendor(ifmsh->mpm_vendor_ie, ifmsh->mpm_vendor_ie_len, 0);
+
+		if (offset < ifmsh->mpm_vendor_ie_len) {
+			len = ifmsh->mpm_vendor_ie_len - offset;
+			data = ifmsh->mpm_vendor_ie + offset;
+			if (skb_tailroom(skb) < len)
+				return -ENOMEM;
+			skb_put_data(skb, data, len);
+		}
 	}
 
 	return 0;
@@ -703,7 +715,9 @@ ieee80211_mesh_build_beacon(struct ieee80211_if_mesh *ifmsh)
 		   2 + sizeof(__le16) + /* awake window */
 		   2 + sizeof(struct ieee80211_vht_cap) +
 		   2 + sizeof(struct ieee80211_vht_operation) +
-		   ifmsh->ie_len;
+		   ifmsh->ie_len +
+		   ifmsh->node_vendor_ie_len +
+		   ifmsh->mpm_vendor_ie_len;
 
 	bcn = kzalloc(sizeof(*bcn) + head_len + tail_len, GFP_KERNEL);
 	/* need an skb for IE builders to operate on */

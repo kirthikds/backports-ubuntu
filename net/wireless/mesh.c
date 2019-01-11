@@ -212,6 +212,34 @@ int cfg80211_join_mesh(struct cfg80211_registered_device *rdev,
 	return err;
 }
 
+int cfg80211_update_mesh_vendor_node_metrics_ie(struct cfg80211_registered_device *rdev,
+				   struct net_device *dev,
+				   struct mesh_vendor_ie *vendor_ie)
+{
+	struct wireless_dev *wdev = dev->ieee80211_ptr;
+	int err;
+
+	wdev_lock(wdev);
+	err = rdev_update_mesh_vendor_node_metrics_ie(rdev, dev, vendor_ie);
+	wdev_unlock(wdev);
+
+	return err;
+}
+
+int cfg80211_update_mesh_vendor_path_metrics_ie(struct cfg80211_registered_device *rdev,
+						struct net_device *dev,
+						struct mesh_vendor_ie *vendor_ie)
+{
+	struct wireless_dev *wdev = dev->ieee80211_ptr;
+	int err;
+
+	wdev_lock(wdev);
+	err = rdev_update_mesh_vendor_path_metrics_ie(rdev, dev, vendor_ie);
+	wdev_unlock(wdev);
+
+	return err;
+}
+
 int cfg80211_set_mesh_channel(struct cfg80211_registered_device *rdev,
 			      struct wireless_dev *wdev,
 			      struct cfg80211_chan_def *chandef)

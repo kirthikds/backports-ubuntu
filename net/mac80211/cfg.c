@@ -2004,6 +2004,37 @@ static int ieee80211_update_mesh_config(struct wiphy *wiphy,
 	return 0;
 }
 
+static int ieee80211_update_mesh_vendor_node_metrics_ie(struct wiphy *wiphy,
+							struct net_device *dev,
+							const struct mesh_vendor_ie *vendor_ie)
+{
+	struct ieee80211_sub_if_data *sdata;
+	struct ieee80211_if_mesh *ifmsh;
+
+	sdata = IEEE80211_DEV_TO_SUB_IF(dev);
+	ifmsh = &sdata->u.mesh;
+	memcpy(ifmsh->node_vendor_ie, vendor_ie->ie, vendor_ie->ie_len);
+	ifmsh->node_vendor_ie_len = vendor_ie->ie_len;
+	ieee80211_mbss_info_change_notify(sdata, BSS_CHANGED_BEACON);
+	return 0;
+}
+
+static int ieee80211_update_mesh_vendor_path_metrics_ie(struct wiphy *wiphy,
+							struct net_device *dev,
+							const struct mesh_vendor_ie *vendor_ie)
+{
+	struct ieee80211_sub_if_data *sdata;
+	struct ieee80211_if_mesh *ifmsh;
+
+	sdata = IEEE80211_DEV_TO_SUB_IF(dev);
+	ifmsh = &sdata->u.mesh;
+	memcpy(ifmsh->mpm_vendor_ie, vendor_ie->ie, vendor_ie->ie_len);
+	ifmsh->mpm_vendor_ie_len = vendor_ie->ie_len;
+	ieee80211_mbss_info_change_notify(sdata, BSS_CHANGED_BEACON);
+	return 0;
+}
+
+
 static int ieee80211_join_mesh(struct wiphy *wiphy, struct net_device *dev,
 			       const struct mesh_config *conf,
 			       const struct mesh_setup *setup)
@@ -3696,6 +3727,8 @@ const struct cfg80211_ops mac80211_config_ops = {
 	.get_mesh_config = ieee80211_get_mesh_config,
 	.join_mesh = ieee80211_join_mesh,
 	.leave_mesh = ieee80211_leave_mesh,
+	.update_mesh_vendor_node_metrics_ie = ieee80211_update_mesh_vendor_node_metrics_ie,
+	.update_mesh_vendor_path_metrics_ie = ieee80211_update_mesh_vendor_path_metrics_ie,
 #endif
 	.join_ocb = ieee80211_join_ocb,
 	.leave_ocb = ieee80211_leave_ocb,

@@ -11760,8 +11760,30 @@ static int nl80211_vendor_cmd(struct sk_buff *skb, struct genl_info *info)
 	struct cfg80211_registered_device *rdev = info->user_ptr[0];
 	struct wireless_dev *wdev =
 		__cfg80211_wdev_from_attrs(genl_info_net(info), info->attrs);
-	int i, err;
+	int i, err = -1;
 	u32 vid, subcmd;
+	struct net_device *dev = wdev->netdev;
+	struct mesh_vendor_ie mv_ie;
+	u8 type;
+
+
+	if (wdev->iftype == NL80211_IFTYPE_MESH_POINT) {
+		if (info->attrs[NL80211_ATTR_VENDOR_DATA] &&
+			info->attrs[NL80211_ATTR_VENDOR_SUBCMD]) {
+			struct nlattr *ieattr =
+				info->attrs[NL80211_ATTR_VENDOR_DATA];
+			if (!is_valid_ie_attr(ieattr))
+				return -EINVAL;
+			mv_ie.ie = nla_data(ieattr);
+			mv_ie.ie_len = nla_len(ieattr);
+			type = nla_get_u32(info->attrs[NL80211_ATTR_VENDOR_SUBCMD]);
+			if (type == NL80211_QBC_UPDATE_NODE_METRICS_IE)
+				err = cfg80211_update_mesh_vendor_node_metrics_ie(rdev, dev, &mv_ie);
+			else if (type == NL80211_QBC_UPDATE_PATH_METRICS_IE)
+				err = cfg80211_update_mesh_vendor_path_metrics_ie(rdev, dev, &mv_ie);
+			return err;
+		}
+	}
 
 	if (!rdev->wiphy.vendor_commands)
 		return -EOPNOTSUPP;
