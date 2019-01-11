@@ -1164,11 +1164,16 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 	size_t baselen;
 	int freq;
 	enum nl80211_band band = rx_status->band;
+	struct ieee802_11_mesh_vendor_specific_elems velems;
+	u32 beacon_int = 0;
 
 	/* ignore ProbeResp to foreign address */
 	if (stype == IEEE80211_STYPE_PROBE_RESP &&
 	    !ether_addr_equal(mgmt->da, sdata->vif.addr))
 		return;
+
+	if (stype == IEEE80211_STYPE_BEACON)
+		beacon_int = mgmt->u.beacon.beacon_int;
 
 	baselen = (u8 *) mgmt->u.probe_resp.variable - (u8 *) mgmt;
 	if (baselen > len)
@@ -1200,6 +1205,24 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 		    sdata->u.mesh.mshcfg.rssi_threshold == 0 ||
 		    sdata->u.mesh.mshcfg.rssi_threshold < rx_status->signal)
 			mesh_neighbour_update(sdata, mgmt->sa, &elems);
+
+
+		ieee802_11_parse_mesh_vendor_elems(mgmt->u.probe_resp.variable, len - baselen,
+			       false, &velems, 0, 0, NL80211_QBC_UPDATE_NODE_METRICS_IE);
+
+		if (velems.parse_error	== false)
+			cfg80211_notify_mesh_peer_node_metrics(sdata->dev, mgmt->sa, stype,
+							       rx_status->signal, beacon_int,
+							       velems.ie_start, velems.ie_len,
+							       GFP_KERNEL);
+
+		ieee802_11_parse_mesh_vendor_elems(mgmt->u.probe_resp.variable, len - baselen,
+			       false, &velems, 0, 0, NL80211_QBC_UPDATE_PATH_METRICS_IE);
+
+		if (velems.parse_error	== false)
+			cfg80211_notify_mesh_peer_path_metrics(sdata->dev, mgmt->sa,
+							       velems.ie_start, velems.ie_len,
+							       GFP_KERNEL);
 	}
 
 	if (ifmsh->sync_ops)

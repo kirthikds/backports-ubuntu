@@ -766,6 +766,63 @@ void ieee80211_queue_delayed_work(struct ieee80211_hw *hw,
 }
 EXPORT_SYMBOL(ieee80211_queue_delayed_work);
 
+u32 ieee802_11_parse_mesh_vendor_elems(const u8 *start, size_t len, bool action,
+			       struct ieee802_11_mesh_vendor_specific_elems *elems,
+			       u64 filter, u32 crc, u8 type)
+{
+	size_t left = len;
+	const u8 *pos = start;
+	bool calc_crc = filter != 0;
+
+	memset(elems, 0, sizeof(*elems));
+	elems->parse_error = true;
+
+	while (left >= 2) {
+		u8 id, elen;
+
+		id = *pos++;
+		elen = *pos++;
+		left -= 2;
+
+		if (elen > left) {
+			break;
+		}
+
+		if (calc_crc && id < 64 && (filter & (1ULL << id)))
+			crc = crc32_be(crc, pos - 2, elen + 2);
+
+
+		switch (id) {
+		case WLAN_EID_VENDOR_SPECIFIC:
+			if (elen >= 4 && pos[0] == 0xC0 && pos[1] == 0xFF &&
+			    pos[2] == 0xEE && pos[3] == type) {
+				/* Qubercomm OUI (C0:FF:EE) */
+
+				if (calc_crc)
+					crc = crc32_be(crc, pos - 2, elen + 2);
+
+				elems->ie_start = pos;
+				elems->ie_len = elen;
+				elems->parse_error = false;
+
+			}
+			break;
+		default:
+			break;
+		}
+
+		if (elems->parse_error == false)
+			break;
+
+		left -= elen;
+		pos += elen;
+	}
+
+	return crc;
+
+}
+EXPORT_SYMBOL(ieee802_11_parse_mesh_vendor_elems);
+
 u32 ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
 			       struct ieee802_11_elems *elems,
 			       u64 filter, u32 crc)
