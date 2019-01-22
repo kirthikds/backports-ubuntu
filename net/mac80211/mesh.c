@@ -1201,28 +1201,33 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 	if (mesh_matches_local(sdata, &elems)) {
 		mpl_dbg(sdata, "rssi_threshold=%d,rx_status->signal=%d\n",
 			sdata->u.mesh.mshcfg.rssi_threshold, rx_status->signal);
-		if (!sdata->u.mesh.user_mpm ||
-		    sdata->u.mesh.mshcfg.rssi_threshold == 0 ||
-		    sdata->u.mesh.mshcfg.rssi_threshold < rx_status->signal)
-			mesh_neighbour_update(sdata, mgmt->sa, &elems);
 
 
 		ieee802_11_parse_mesh_vendor_elems(mgmt->u.probe_resp.variable, len - baselen,
 			       false, &velems, 0, 0, NL80211_QBC_UPDATE_NODE_METRICS_IE);
 
-		if (velems.parse_error	== false)
+		if (velems.parse_error	== false) {
 			cfg80211_notify_mesh_peer_node_metrics(sdata->dev, mgmt->sa, stype,
 							       rx_status->signal, beacon_int,
 							       velems.ie_start, velems.ie_len,
 							       GFP_KERNEL);
+			elems.total_len -= (velems.ie_len + 2);
+		}
 
 		ieee802_11_parse_mesh_vendor_elems(mgmt->u.probe_resp.variable, len - baselen,
 			       false, &velems, 0, 0, NL80211_QBC_UPDATE_PATH_METRICS_IE);
 
-		if (velems.parse_error	== false)
+		if (velems.parse_error	== false) {
 			cfg80211_notify_mesh_peer_path_metrics(sdata->dev, mgmt->sa,
 							       velems.ie_start, velems.ie_len,
 							       GFP_KERNEL);
+			elems.total_len -= (velems.ie_len + 2);
+		}
+
+		if (!sdata->u.mesh.user_mpm ||
+		    sdata->u.mesh.mshcfg.rssi_threshold == 0 ||
+		    sdata->u.mesh.mshcfg.rssi_threshold < rx_status->signal)
+			mesh_neighbour_update(sdata, mgmt->sa, &elems);
 	}
 
 	if (ifmsh->sync_ops)
